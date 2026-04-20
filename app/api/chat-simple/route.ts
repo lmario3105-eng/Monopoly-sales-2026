@@ -6,9 +6,19 @@ interface ChatRequest {
   userName: string;
   message: string;
   isAdmin?: boolean;
+  conversationHistory?: Array<{ role: string; content: string }>;
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+// Credenciales de administrador
+const ADMIN_CREDENTIALS = {
+  username: 'admin-monopoly',
+  password: process.env.ADMIN_PASSWORD || 'Monopoly2024#Admin',
+};
+
+// Almacenamiento en memoria de aprendizaje del chatbot
+const chatbotMemory: Record<string, Array<{ topic: string; context: string; count: number }>> = {};
 
 // Comandos disponibles
 const COMMANDS: Record<string, string> = {
@@ -17,6 +27,7 @@ const COMMANDS: Record<string, string> = {
   '/top': 'Muestra los top vendedores',
   '/teams': 'Muestra los equipos en juego',
   '/status': 'Estado actual del sistema',
+  '/admin-login': 'Inicia sesión como administrador',
   '/commands': 'Alias de /help',
 };
 
@@ -28,7 +39,8 @@ const COMMAND_RESPONSES: Record<string, string> = {
     '• /stats - Estadísticas del juego\n' +
     '• /top - Top 10 vendedores\n' +
     '• /teams - Lista de equipos\n' +
-    '• /status - Estado del sistema\n\n' +
+    '• /status - Estado del sistema\n' +
+    '• /admin-login - Acceso administrador (VIP)\n\n' +
     'También puedo responder preguntas generales sobre el juego o las estadísticas.',
   '/stats':
     '📊 **ESTADÍSTICAS DEL JUEGO:**\n\n' +
@@ -53,7 +65,42 @@ const COMMAND_RESPONSES: Record<string, string> = {
   '/status': '✅ **ESTADO DEL SISTEMA:**\n\n✓ API activa\n✓ Base de datos sincronizada\n✓ Chat disponible\n✓ WhatsApp conectado\n\n⏰ Última sincronización: Hace unos segundos',
 };
 
-async function getGeminiResponse(message: string): Promise<string> {
+// Función para registrar aprendizaje del bot
+function recordLearning(topic: string, context: string): void {
+  if (!chatbotMemory[topic]) {
+    chatbotMemory[topic] = [];
+  }
+
+  const existing = chatbotMemory[topic].find((item) => item.context === context);
+  if (existing) {
+    existing.count++;
+  } else {
+    chatbotMemory[topic].push({ topic, context, count: 1 });
+  }
+}
+
+// Función para obtener contexto de aprendizaje
+function getLearnedContext(): string {
+  const entries = Object.entries(chatbotMemory);
+  if (entries.length === 0) return '';
+
+  return entries
+    .map(
+      ([topic, items]) =>
+        `${topic}: ${items
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3)
+          .map((i) => i.context)
+          .join(', ')}`
+    )
+    .join('\n');
+}
+
+async function getGeminiResponse(
+  message: string,
+  userName: string,
+  conversationHistory?: Array<{ role: string; content: string }>
+): Promise<string> {
   try {
     if (!process.env.GEMINI_API_KEY) {
       return 'Error: Gemini API no está configurada.';
@@ -61,24 +108,41 @@ async function getGeminiResponse(message: string): Promise<string> {
 
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-    const systemPrompt = `Eres un asistente amigable para un juego de Monopolio de Ventas. 
-    Responde preguntas sobre:
-    - Estadísticas del juego
-    - Ranking de vendedores
-    - Información de equipos
-    - Mecánicas del juego
+    const learnedContext = getLearnedContext();
+
+    const systemPrompt = `Eres "Monopolio Bot", un asistente muy amigable y experto del Monopolio de Ventas. 
     
-    Sé conciso, usa emojis relevantes y sé profesional.`;
+INSTRUCCIONES IMPORTANTES:
+1. Responde preguntas sobre el juego, estadísticas, equipos y vendedores
+2. Sé conversacional, usa emojis apropiados y personaliza respuestas
+3. Recuerda información del usuario (${userName}) en futuras interacciones
+4. Aprende de cada conversación y mejora tus respuestas
+5. Si no sabes algo, ofrece buscar información o ayuda alternativa
+6. Sé motivador y ayuda a mejorar el rendimiento
+    
+INFORMACIÓN APRENDIDA PREVIAMENTE:
+${learnedContext || 'Primer contacto - aprendiendo...'}
+
+CONTEXTO DE CONVERSACIÓN:
+${conversationHistory?.slice(-4).map((m) => `${m.role}: ${m.content}`).join('\n') || 'Nueva conversación'}`;
 
     const chat = model.startChat({
-      history: [],
+      history: conversationHistory?.map((m) => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.content }],
+      })) || [],
       generationConfig: {
-        maxOutputTokens: 200,
+        maxOutputTokens: 300,
+        temperature: 0.7,
       },
     });
 
-    const result = await chat.sendMessage(`${systemPrompt}\n\nUsuario pregunta: ${message}`);
+    const result = await chat.sendMessage(message);
     const response = result.response.text();
+
+    // Registrar aprendizaje
+    recordLearning('conversacion_general', `${userName}: ${message}`);
+    recordLearning('respuesta_generada', response.substring(0, 100));
 
     return response || 'No pude procesar tu pregunta.';
   } catch (error) {
@@ -87,10 +151,15 @@ async function getGeminiResponse(message: string): Promise<string> {
   }
 }
 
+// Función para verificar credenciales de admin
+function verifyAdminCredentials(username: string, password: string): boolean {
+  return username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password;
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = (await request.json()) as ChatRequest;
-    const { userId, userName, message, isAdmin = false } = body;
+    const { userId, userName, message, isAdmin = false, conversationHistory = [] } = body;
 
     if (!userId || !message) {
       return NextResponse.json(
@@ -102,28 +171,62 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.log(`[Chat API] Mensaje de ${userName}: ${message}`);
 
     const messageLower = message.toLowerCase().trim();
-
-    // Buscar comando exacto
     let response = '';
+    let isAdminResponse = false;
 
-    for (const [cmd, desc] of Object.entries(COMMANDS)) {
-      if (messageLower === cmd.toLowerCase() || messageLower.startsWith(cmd.toLowerCase())) {
-        response = COMMAND_RESPONSES[cmd];
-        break;
+    // Manejar login de administrador
+    if (messageLower.startsWith('/admin-login')) {
+      const parts = message.split(' ');
+      if (parts.length >= 3) {
+        const username = parts[1];
+        const password = parts[2];
+
+        if (verifyAdminCredentials(username, password)) {
+          response =
+            '✅ **ACCESO ADMINISTRATIVO CONCEDIDO**\n\n' +
+            'Bienvenido al panel de administrador.\n\n' +
+            '**COMANDOS DE ADMIN:**\n' +
+            '• /admin-panel - Acceder al panel\n' +
+            '• /users-stats - Estadísticas de usuarios\n' +
+            '• /broadcast [mensaje] - Enviar mensaje a todos\n' +
+            '• /system-status - Estado completo del sistema\n\n' +
+            '🔐 Sesión administrador activa';
+          isAdminResponse = true;
+        } else {
+          response = '❌ Credenciales de administrador inválidas. Intenta de nuevo.';
+        }
+      } else {
+        response =
+          '📝 **ACCESO ADMINISTRADOR**\n\n' +
+          'Uso: /admin-login <usuario> <contraseña>\n\n' +
+          'Ejemplo: /admin-login admin-monopoly Monopoly2024#Admin';
       }
-    }
+    } else {
+      // Buscar comando exacto
+      for (const [cmd, desc] of Object.entries(COMMANDS)) {
+        if (messageLower === cmd.toLowerCase() || messageLower.startsWith(cmd.toLowerCase())) {
+          response = COMMAND_RESPONSES[cmd];
+          break;
+        }
+      }
 
-    // Si no es comando, usar Gemini AI
-    if (!response) {
-      response = await getGeminiResponse(message);
+      // Si no es comando, usar Gemini AI con memoria
+      if (!response) {
+        response = await getGeminiResponse(message, userName, conversationHistory);
+      } else {
+        // Registrar comando ejecutado
+        recordLearning('comandos_usados', message);
+      }
     }
 
     return NextResponse.json({
       success: true,
       response,
       userId,
+      isAdmin: isAdminResponse,
       command: messageLower.startsWith('/'),
       timestamp: new Date().toISOString(),
+      isAdminCommand: isAdminResponse,
     });
   } catch (error) {
     console.error('[Chat API Error]:', error);

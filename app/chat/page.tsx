@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, Component, type ReactNode } from 'react';
-import { Send, ArrowLeft } from 'lucide-react';
+import { Send, ArrowLeft, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { ChatMessage } from '@/components/chat/ChatMessage';
 
@@ -49,13 +49,14 @@ function ChatContent() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hola! Soy tu asistente de Monopolio. Escriba /help para ver los comandos disponibles.',
+      text: 'Hola! Soy tu asistente de Monopolio. Escriba /help para ver los comandos disponibles. También puedo aprender de tus preguntas.',
       sender: 'bot',
       timestamp: new Date(),
     },
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -70,6 +71,67 @@ function ChatContent() {
     e.preventDefault();
     if (!input.trim()) return;
 
+    // Verificar si es intento de login de admin
+    if (input.toLowerCase().startsWith('/admin-login')) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        text: input,
+        sender: 'user',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, userMessage]);
+      setInput('');
+
+      // Procesar login de admin
+      const parts = input.split(' ');
+      if (parts.length >= 3) {
+        const username = parts[1];
+        const password = parts[2];
+
+        try {
+          const response = await fetch('/api/chat-simple', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: 'admin',
+              userName: 'Administrador',
+              message: input,
+              isAdmin: true,
+              conversationHistory: messages.map((m) => ({
+                role: m.sender === 'user' ? 'user' : 'assistant',
+                content: m.text,
+              })),
+            }),
+          });
+
+          if (response.ok) {
+            const data = (await response.json()) as any;
+            if (data.isAdminCommand) {
+              setIsAdmin(true);
+            }
+
+            const botMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              text: data.response,
+              sender: 'bot',
+              timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, botMessage]);
+          }
+        } catch (error) {
+          console.error('[Chat] Error:', error);
+          const errorMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            text: 'Error al procesar login de administrador',
+            sender: 'bot',
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, errorMessage]);
+        }
+      }
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       text: input,
@@ -82,27 +144,26 @@ function ChatContent() {
     setIsLoading(true);
 
     try {
-      console.log('[v0] Enviando mensaje:', input);
-
       const response = await fetch('/api/chat-simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: 'user-web',
-          userName: 'Usuario Web',
+          userId: isAdmin ? 'admin' : 'user-web',
+          userName: isAdmin ? 'Administrador' : 'Usuario Web',
           message: input,
-          isAdmin: false,
+          isAdmin: isAdmin,
+          conversationHistory: messages.map((m) => ({
+            role: m.sender === 'user' ? 'user' : 'assistant',
+            content: m.text,
+          })),
         }),
       });
 
-      console.log('[v0] Respuesta status:', response.status);
-
       if (!response.ok) {
-        throw new Error(`Error del servidor: ${response.status}`);
+        throw new Error(`Error: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log('[v0] Datos de respuesta:', data);
+      const data = (await response.json()) as any;
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -113,10 +174,10 @@ function ChatContent() {
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      console.error('[v0] Error en chat:', error);
+      console.error('[Chat Error]:', error);
       const errorMessage: Message = {
-        id: (Date.now() + 2).toString(),
-        text: 'Ocurrió un error. Intenta de nuevo.',
+        id: (Date.now() + 1).toString(),
+        text: 'Disculpa, tuve un error. Intenta de nuevo.',
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -128,19 +189,22 @@ function ChatContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex flex-col">
-      <div className="bg-blue-600 text-white shadow-lg">
+      <div className={`${isAdmin ? 'bg-purple-600' : 'bg-blue-600'} text-white shadow-lg transition-colors`}>
         <div className="max-w-2xl mx-auto flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="hover:bg-blue-700 p-2 rounded-lg transition"
+              className={`${isAdmin ? 'hover:bg-purple-700' : 'hover:bg-blue-700'} p-2 rounded-lg transition`}
               aria-label="Volver al juego"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold">Asistente de Monopolio</h1>
-              <p className="text-sm text-blue-100">24/7 Disponible</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold">Asistente de Monopolio</h1>
+                {isAdmin && <Lock className="w-4 h-4 text-yellow-300" />}
+              </div>
+              <p className="text-sm text-blue-100">{isAdmin ? 'Modo Admin' : '24/7 Disponible'}</p>
             </div>
           </div>
           <div className="text-sm text-blue-100">
@@ -173,7 +237,7 @@ function ChatContent() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Escribe tu mensaje..."
+            placeholder={isAdmin ? 'Comando de admin...' : 'Escribe tu mensaje...'}
             disabled={isLoading}
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           />
@@ -187,9 +251,14 @@ function ChatContent() {
         </form>
 
         <div className="bg-blue-50 border-t px-4 py-3 max-w-2xl w-full mx-auto">
-          <p className="text-xs text-gray-600 font-semibold mb-2">Comandos:</p>
+          <p className="text-xs text-gray-600 font-semibold mb-2">
+            {isAdmin ? 'Comandos de Admin:' : 'Comandos:'}
+          </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {['/help', '/stats', '/top', '/teams'].map((cmd) => (
+            {(isAdmin
+              ? ['/admin-panel', '/users-stats', '/broadcast', '/system-status']
+              : ['/help', '/stats', '/top', '/teams']
+            ).map((cmd) => (
               <button
                 key={cmd}
                 onClick={() => setInput(cmd)}
@@ -199,6 +268,11 @@ function ChatContent() {
               </button>
             ))}
           </div>
+          {!isAdmin && (
+            <div className="mt-3 pt-3 border-t text-xs text-gray-500">
+              VIP? Usa <code className="bg-gray-100 px-2 py-1 rounded">/admin-login usuario password</code> para acceso de administrador
+            </div>
+          )}
         </div>
       </div>
     </div>
