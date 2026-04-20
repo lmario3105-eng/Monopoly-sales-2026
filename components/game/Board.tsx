@@ -36,6 +36,15 @@ const getTeamColorClass = (color: string): string => {
 };
 
 export function Board({ tiles, teams, currentTeamIndex, onTileClick }: BoardProps) {
+  // Validar props
+  if (!tiles || !Array.isArray(tiles) || tiles.length === 0) {
+    return <div className="p-4 text-center text-muted-foreground">Tablero no disponible</div>;
+  }
+
+  if (!teams || !Array.isArray(teams) || teams.length === 0) {
+    return <div className="p-4 text-center text-muted-foreground">Equipos no disponibles</div>;
+  }
+
   // Create a 6x6 grid
   const gridSize = 6;
   

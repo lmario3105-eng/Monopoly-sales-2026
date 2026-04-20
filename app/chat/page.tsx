@@ -117,9 +117,7 @@ export default function ChatPage() {
         {messages.map((message) => (
           <ChatMessage
             key={message.id}
-            message={message.text}
-            sender={message.sender}
-            timestamp={message.timestamp}
+            message={message}
           />
         ))}
         {isLoading && (

@@ -56,6 +56,18 @@ function GameContent() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showStats, setShowStats] = useState(false);
 
+  // Validaciones defensivas
+  if (!state || !state.teams || !Array.isArray(state.teams)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="text-center">
+          <p className="text-destructive font-bold mb-4">Inicializando juego...</p>
+          <p className="text-muted-foreground">Por favor espera un momento</p>
+        </div>
+      </div>
+    );
+  }
+
   const currentTeam = state.teams[state.currentTeamIndex];
 
   if (showWelcome) {
