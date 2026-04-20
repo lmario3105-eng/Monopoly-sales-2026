@@ -1,0 +1,60 @@
+{
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "nodeVersion": "20.x",
+  "env": {
+    "WHATSAPP_VERIFY_TOKEN": {
+      "description": "Token de verificación del webhook de WhatsApp - Automáticamente configurado con: monopolio_sales_2025"
+    },
+    "WHATSAPP_ACCESS_TOKEN": {
+      "description": "Token de acceso de la API de WhatsApp Business (obtén de Meta Developers)"
+    },
+    "WHATSAPP_PHONE_NUMBER_ID": {
+      "description": "ID del número de teléfono de WhatsApp Business (obtén de Meta Developers)"
+    },
+    "WHATSAPP_APP_SECRET": {
+      "description": "App Secret de tu aplicación en Meta (obtén de Meta Developers)"
+    },
+    "GEMINI_API_KEY": {
+      "description": "Clave de API de Google Gemini (obtén de Google AI Studio)"
+    }
+  },
+  "buildOutputDirectory": ".next",
+  "functions": {
+    "app/api/whatsapp/**": {
+      "memory": 1024,
+      "maxDuration": 30,
+      "runtime": "nodejs20.x"
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/whatsapp",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "X-Powered-By",
+          "value": "Vercel Edge"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/whatsapp",
+      "destination": "/api/whatsapp",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/webhook",
+      "destination": "/api/whatsapp"
+    }
+  ]
+}
