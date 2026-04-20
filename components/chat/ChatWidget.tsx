@@ -52,6 +52,10 @@ export function ChatWidget() {
     setIsLoading(true);
 
     try {
+      // Crear un AbortController con timeout de 30 segundos
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
       const response = await fetch('/api/chat-simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,10 +69,14 @@ export function ChatWidget() {
             content: m.text,
           })),
         }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       const data = await response.json() as any;
@@ -87,9 +95,20 @@ export function ChatWidget() {
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       console.error('[v0] Error enviando mensaje:', error);
+      
+      let errorText = 'Lo siento, hubo un error. Intenta de nuevo.';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorText = 'La solicitud tardó demasiado. Por favor intenta de nuevo.';
+        } else if (error.message.includes('Failed to fetch')) {
+          errorText = 'No se pudo conectar al servidor. Verifica tu conexión.';
+        }
+      }
+      
       const errorMessage: Message = {
         id: (Date.now() + 2).toString(),
-        text: '❌ Lo siento, hubo un error. Intenta de nuevo o usa /help para ver los comandos disponibles.',
+        text: `❌ ${errorText}\n\nPuedes probar con /help para ver comandos disponibles.`,
         sender: 'bot',
         timestamp: new Date(),
       };
