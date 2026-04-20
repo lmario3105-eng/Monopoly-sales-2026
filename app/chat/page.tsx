@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect, Component, type ReactNode } from 'react';
-import { Send, ArrowLeft, Lock } from 'lucide-react';
-import Link from 'next/link';
-import { ChatMessage } from '@/components/chat/ChatMessage';
+import { Phone, Lock } from 'lucide-react';
+import { WhatsAppConnectModal } from '@/components/chat/WhatsAppConnectModal';
+import { AdminPanel } from '@/components/admin/AdminPanel';
 
 interface Message {
   id: string;
@@ -57,6 +57,9 @@ function ChatContent() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminToken, setAdminToken] = useState('');
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -89,37 +92,39 @@ function ChatContent() {
         const password = parts[2];
 
         try {
-          const response = await fetch('/api/chat-simple', {
+          const response = await fetch('/api/admin/auth?action=login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              userId: 'admin',
-              userName: 'Administrador',
-              message: input,
-              isAdmin: true,
-              conversationHistory: messages.map((m) => ({
-                role: m.sender === 'user' ? 'user' : 'assistant',
-                content: m.text,
-              })),
+              username,
+              password,
             }),
           });
 
           if (response.ok) {
-            const data = (await response.json()) as any;
-            if (data.isAdminCommand) {
-              setIsAdmin(true);
-            }
+            const data = await response.json();
+            setAdminToken(data.token);
+            setIsAdmin(true);
 
             const botMessage: Message = {
               id: (Date.now() + 1).toString(),
-              text: data.response,
+              text: `✅ Bienvenido Administrador ${data.admin.username}. Tu rol: ${data.admin.role}. Tienes acceso a: ${data.admin.permissions.join(', ')}`,
+              sender: 'bot',
+              timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, botMessage]);
+          } else {
+            const data = await response.json();
+            const botMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              text: `❌ ${data.error || 'Credenciales inválidas'}`,
               sender: 'bot',
               timestamp: new Date(),
             };
             setMessages((prev) => [...prev, botMessage]);
           }
         } catch (error) {
-          console.error('[Chat] Error:', error);
+          console.error('[Admin Login] Error:', error);
           const errorMessage: Message = {
             id: (Date.now() + 1).toString(),
             text: 'Error al procesar login de administrador',
@@ -128,6 +133,14 @@ function ChatContent() {
           };
           setMessages((prev) => [...prev, errorMessage]);
         }
+      } else {
+        const helpMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: 'Uso: /admin-login <usuario> <contraseña>\nEjemplo: /admin-login admin-monopoly Monopoly2024#Admin',
+          sender: 'bot',
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, helpMessage]);
       }
       return;
     }
@@ -207,8 +220,26 @@ function ChatContent() {
               <p className="text-sm text-blue-100">{isAdmin ? 'Modo Admin' : '24/7 Disponible'}</p>
             </div>
           </div>
-          <div className="text-sm text-blue-100">
-            {isLoading ? 'Escribiendo...' : 'En línea'}
+          <div className="text-sm text-blue-100 flex items-center gap-4">
+            <span>{isLoading ? 'Escribiendo...' : 'En línea'}</span>
+            <button
+              type="button"
+              onClick={() => setShowWhatsAppModal(true)}
+              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm transition flex items-center gap-2"
+            >
+              <Phone className="w-4 h-4" />
+              WhatsApp
+            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setShowAdminPanel(true)}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg text-sm transition flex items-center gap-2"
+              >
+                <Lock className="w-4 h-4" />
+                Panel
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -275,6 +306,27 @@ function ChatContent() {
           )}
         </div>
       </div>
+
+      <WhatsAppConnectModal
+        isOpen={showWhatsAppModal}
+        onClose={() => setShowWhatsAppModal(false)}
+        onSuccess={(userId) => {
+          const botMessage: Message = {
+            id: Date.now().toString(),
+            text: `✅ WhatsApp conectado correctamente. Tu ID: ${userId}. Ahora puedes recibir mensajes en WhatsApp.`,
+            sender: 'bot',
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, botMessage]);
+          setShowWhatsAppModal(false);
+        }}
+      />
+
+      <AdminPanel
+        isOpen={showAdminPanel}
+        onClose={() => setShowAdminPanel(false)}
+        adminToken={adminToken}
+      />
     </div>
   );
 }
