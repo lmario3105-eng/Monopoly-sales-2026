@@ -51,15 +51,20 @@ export function ChatWidget() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/bot/commands', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ 
+          userId: 'user-web',
+          userName: 'Web User',
+          message: input,
+          isAdmin: false 
+        }),
       });
 
       if (!response.ok) throw new Error('Error en respuesta');
 
-      const data = await response.json();
+      const data = await response.json() as any;
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
