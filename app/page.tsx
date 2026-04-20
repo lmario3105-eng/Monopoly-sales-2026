@@ -13,10 +13,10 @@ import { WelcomeModal } from '@/components/game/WelcomeModal';
 import { FinalResults } from '@/components/game/FinalResults';
 import { WhatsAppSync } from '@/components/game/WhatsAppSync';
 import { AdminPanel } from '@/components/game/AdminPanel';
-import { ChatWidget } from '@/components/chat/ChatWidget';
 import { StatsModal } from '@/components/dashboard/StatsModal';
 import { WhatsAppStatus } from '@/components/dashboard/WhatsAppStatus';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, MessageCircle } from 'lucide-react';
+import Link from 'next/link';
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -133,6 +133,15 @@ function GameContent() {
               Ver Estadísticas
             </button>
 
+            {/* Chat Button */}
+            <Link
+              href="/chat"
+              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition w-full"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Abrir Chat
+            </Link>
+
             {/* WhatsApp Status */}
             <div className="flex-shrink-0">
               <WhatsAppStatus />
@@ -186,9 +195,6 @@ function GameContent() {
           topPerformer: t.members[0] || 'N/A',
         }))}
       />
-
-      {/* Chat Widget */}
-      <ChatWidget />
     </div>
   );
 }
