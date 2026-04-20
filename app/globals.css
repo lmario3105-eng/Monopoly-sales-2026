@@ -1,0 +1,312 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Monopolio de Ventas - Montería Edition Theme */
+:root {
+  /* Dark professional base */
+  --background: oklch(0.12 0.01 260);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.16 0.01 260);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.14 0.01 260);
+  --popover-foreground: oklch(0.95 0 0);
+  
+  /* Primary - Electric Cyan */
+  --primary: oklch(0.75 0.18 195);
+  --primary-foreground: oklch(0.12 0.01 260);
+  
+  /* Secondary - Deep slate */
+  --secondary: oklch(0.22 0.015 260);
+  --secondary-foreground: oklch(0.9 0 0);
+  
+  /* Muted */
+  --muted: oklch(0.2 0.01 260);
+  --muted-foreground: oklch(0.6 0 0);
+  
+  /* Accent - Vibrant Gold */
+  --accent: oklch(0.8 0.16 85);
+  --accent-foreground: oklch(0.12 0.01 260);
+  
+  /* Destructive - Coral Red */
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  
+  --border: oklch(0.25 0.015 260);
+  --input: oklch(0.2 0.01 260);
+  --ring: oklch(0.75 0.18 195);
+  
+  /* Team Colors for Charts */
+  --chart-1: oklch(0.7 0.2 45);   /* León - Amber */
+  --chart-2: oklch(0.65 0.22 25);  /* Tigre - Orange */
+  --chart-3: oklch(0.6 0.18 195);  /* Águila - Cyan */
+  --chart-4: oklch(0.55 0.2 145);  /* Serpiente - Green */
+  --chart-5: oklch(0.8 0.16 85);   /* Gold accent */
+  
+  --radius: 0.75rem;
+  
+  /* Sidebar */
+  --sidebar: oklch(0.14 0.01 260);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.75 0.18 195);
+  --sidebar-primary-foreground: oklch(0.12 0.01 260);
+  --sidebar-accent: oklch(0.2 0.01 260);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.25 0.015 260);
+  --sidebar-ring: oklch(0.75 0.18 195);
+  
+  /* Custom Game Colors */
+  --team-leon: oklch(0.7 0.2 45);
+  --team-tigre: oklch(0.65 0.22 25);
+  --team-aguila: oklch(0.6 0.18 195);
+  --team-serpiente: oklch(0.55 0.2 145);
+  --zone-a: oklch(0.7 0.2 45);
+  --zone-b: oklch(0.65 0.22 25);
+  --zone-c: oklch(0.6 0.18 195);
+  --zone-d: oklch(0.55 0.2 145);
+  --tile-vape: oklch(0.6 0.15 280);
+  --tile-destilado: oklch(0.65 0.18 40);
+  --tile-ropa: oklch(0.6 0.16 330);
+  --tile-accesorios: oklch(0.55 0.18 175);
+  --tile-comodin: oklch(0.8 0.16 85);
+  --tile-recompensa: oklch(0.7 0.22 150);
+  --tile-evento: oklch(0.65 0.2 320);
+}
+
+.dark {
+  --background: oklch(0.12 0.01 260);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.16 0.01 260);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.14 0.01 260);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.75 0.18 195);
+  --primary-foreground: oklch(0.12 0.01 260);
+  --secondary: oklch(0.22 0.015 260);
+  --secondary-foreground: oklch(0.9 0 0);
+  --muted: oklch(0.2 0.01 260);
+  --muted-foreground: oklch(0.6 0 0);
+  --accent: oklch(0.8 0.16 85);
+  --accent-foreground: oklch(0.12 0.01 260);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.25 0.015 260);
+  --input: oklch(0.2 0.01 260);
+  --ring: oklch(0.75 0.18 195);
+  --chart-1: oklch(0.7 0.2 45);
+  --chart-2: oklch(0.65 0.22 25);
+  --chart-3: oklch(0.6 0.18 195);
+  --chart-4: oklch(0.55 0.2 145);
+  --chart-5: oklch(0.8 0.16 85);
+  --sidebar: oklch(0.14 0.01 260);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.75 0.18 195);
+  --sidebar-primary-foreground: oklch(0.12 0.01 260);
+  --sidebar-accent: oklch(0.2 0.01 260);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.25 0.015 260);
+  --sidebar-ring: oklch(0.75 0.18 195);
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+    opacity: 0.8;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dice-roll {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.2); }
+  50% { transform: rotate(180deg) scale(1); }
+  75% { transform: rotate(270deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes token-move {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3) translateY(-10px); }
+  100% { transform: scale(1); }
+}
+
+@keyframes score-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+.animate-dice-roll {
+  animation: dice-roll 0.5s ease-out;
+}
+
+.animate-token-move {
+  animation: token-move 0.6s ease-out;
+}
+
+.animate-score-pop {
+  animation: score-pop 0.3s ease-out;
+}
+
+/* Team color utilities */
+.bg-team-leon { background-color: var(--team-leon); }
+.bg-team-tigre { background-color: var(--team-tigre); }
+.bg-team-aguila { background-color: var(--team-aguila); }
+.bg-team-serpiente { background-color: var(--team-serpiente); }
+
+.text-team-leon { color: var(--team-leon); }
+.text-team-tigre { color: var(--team-tigre); }
+.text-team-aguila { color: var(--team-aguila); }
+.text-team-serpiente { color: var(--team-serpiente); }
+
+.border-team-leon { border-color: var(--team-leon); }
+.border-team-tigre { border-color: var(--team-tigre); }
+.border-team-aguila { border-color: var(--team-aguila); }
+.border-team-serpiente { border-color: var(--team-serpiente); }
+
+/* Zone colors */
+.bg-zone-a { background-color: var(--zone-a); }
+.bg-zone-b { background-color: var(--zone-b); }
+.bg-zone-c { background-color: var(--zone-c); }
+.bg-zone-d { background-color: var(--zone-d); }
+
+/* Tile type colors */
+.bg-tile-vape { background-color: var(--tile-vape); }
+.bg-tile-destilado { background-color: var(--tile-destilado); }
+.bg-tile-ropa { background-color: var(--tile-ropa); }
+.bg-tile-accesorios { background-color: var(--tile-accesorios); }
+.bg-tile-comodin { background-color: var(--tile-comodin); }
+.bg-tile-recompensa { background-color: var(--tile-recompensa); }
+.bg-tile-evento { background-color: var(--tile-evento); }
+
+/* Scrollbar for Activity Feed and other scrollable areas */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: oklch(0.3 0.01 260);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(0.4 0.01 260);
+}
+
+/* Responsive Grid Layout */
+@media (max-width: 1024px) {
+  .game-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .game-right-panel {
+    max-height: 300px;
+    overflow-y-auto;
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+/* Disable transitions for animations */
+.animate-dice-roll,
+.animate-token-move,
+.animate-score-pop,
+.animate-float,
+.animate-pulse-glow {
+  transition: none;
+}

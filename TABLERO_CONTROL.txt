@@ -1,0 +1,212 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│      🤖 BOT DE WHATSAPP - TABLERO DE CONTROL AUTOMATIZADO 🤖       │
+│                                                                     │
+│                  "Monopolio de Ventas" en WhatsApp                  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+🟢 ESTADO ACTUAL: LISTO PARA SINCRONIZAR
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 CHECKLIST DE AUTOMATIZACIÓN:
+
+  ✅ Webhook endpoint creado y listo
+  ✅ Sistema de sincronización automática implementado
+  ✅ Verificación de variables de entorno
+  ✅ Endpoints de estado disponibles
+  ✅ Guía interactiva paso a paso
+  ⏳ Esperando: Agregar variables en Vercel
+
+═══════════════════════════════════════════════════════════════════════
+
+🔗 URLs DEL BOT (cópialas tal cual):
+
+Webhook URL para Meta:
+  https://[tu-proyecto].vercel.app/api/whatsapp
+
+Verify Token para Meta:
+  monopolio_sales_2025
+
+Verificar sincronización:
+  https://[tu-proyecto].vercel.app/api/whatsapp/auto-sync
+
+Guía paso a paso:
+  https://[tu-proyecto].vercel.app/api/whatsapp/setup-guide
+
+Status actual:
+  https://[tu-proyecto].vercel.app/api/whatsapp
+
+═══════════════════════════════════════════════════════════════════════
+
+📋 VARIABLES DE ENTORNO QUE NECESITAS AGREGAR:
+
+1️⃣  WHATSAPP_VERIFY_TOKEN = monopolio_sales_2025
+2️⃣  WHATSAPP_ACCESS_TOKEN = [obtén de Meta Developers]
+3️⃣  WHATSAPP_PHONE_NUMBER_ID = [obtén de Meta Developers]
+4️⃣  GEMINI_API_KEY = [obtén de Google AI Studio]
+
+═══════════════════════════════════════════════════════════════════════
+
+⚡ ACCIONES RÁPIDAS (COPIAR Y PEGAR):
+
+┌─ VERIFICAR BOT ─────────────────────────────────────────────────────┐
+│                                                                       │
+│ curl https://[tu-proyecto].vercel.app/api/whatsapp                  │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌─ VERIFICAR SINCRONIZACIÓN ──────────────────────────────────────────┐
+│                                                                       │
+│ curl https://[tu-proyecto].vercel.app/api/whatsapp/auto-sync        │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌─ VERIFICAR WEBHOOK (desde terminal) ────────────────────────────────┐
+│                                                                       │
+│ VERIFY_TOKEN="monopolio_sales_2025"                                 │
+│ curl "https://[tu-proyecto].vercel.app/api/whatsapp?\                │
+│   hub.verify_token=$VERIFY_TOKEN&hub.challenge=test"                │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+🚀 FLUJO DE TRABAJO AUTOMÁTICO:
+
+1. Usuario envía mensaje a WhatsApp
+   ↓
+2. Meta envía webhook a: /api/whatsapp
+   ↓
+3. Sistema verifica token automáticamente
+   ↓
+4. Procesa mensaje (IA + lógica del juego)
+   ↓
+5. Genera respuesta automática
+   ↓
+6. Envía de vuelta al usuario
+   ↓
+7. Registra en base de datos
+   ↓
+8. Actualiza estado del juego
+
+═══════════════════════════════════════════════════════════════════════
+
+📝 DIAGRAMA DE DATOS:
+
+Usuario WhatsApp
+    ↓
+    └─→ Mensaje de texto
+         ↓
+         └─→ Webhook Meta
+              ↓
+              └─→ /api/whatsapp (POST)
+                   ↓
+                   ├─→ Verificar token
+                   ├─→ Procesar mensaje
+                   ├─→ Llamar a Gemini IA
+                   ├─→ Generar respuesta
+                   ├─→ Guardar en DB
+                   └─→ Retornar respuesta
+                        ↓
+                        └─→ Usuario recibe respuesta
+
+═══════════════════════════════════════════════════════════════════════
+
+🔐 SEGURIDAD AUTOMÁTICA:
+
+  ✓ Token de verificación validado
+  ✓ Variables de entorno encriptadas en Vercel
+  ✓ HTTPS obligatorio en todos los endpoints
+  ✓ Rate limiting en serverless
+  ✓ Logs de auditoría automáticos
+  ✓ Validación de payloads Meta
+
+═══════════════════════════════════════════════════════════════════════
+
+💾 PERSISTENCIA DE DATOS:
+
+Estado actual: En memoria (sesión)
+Usuarios: Generados automáticamente
+Mensajes: Almacenados en DB mock
+Juego: Sincronizado en tiempo real
+
+Para producción, conecta a:
+  - Supabase (Postgres gratis)
+  - Firestore (Base datos NoSQL)
+  - DynamoDB (AWS)
+
+═══════════════════════════════════════════════════════════════════════
+
+📱 SIMULADOR DE PRUEBA:
+
+El bot funciona en DOS modos:
+
+MODO 1: Simulador (sin Meta)
+→ Usa: /admin/whatsapp-bot
+→ Simula mensajes de usuarios
+→ Prueba lógica sin WhatsApp real
+
+MODO 2: WhatsApp Real
+→ Necesita: Meta configurado
+→ Recibe: Mensajes verdaderos
+→ Funciona: En producción
+
+═══════════════════════════════════════════════════════════════════════
+
+🎮 JUEGO INTEGRADO:
+
+El bot maneja:
+  • Equipos (León, Águila, Serpiente, Jaguar)
+  • Zonas de ventas (A, B, C, D, E)
+  • Puntos de venta
+  • Reclutamiento de jugadores
+  • Tablero de resultados
+  • Final del juego
+
+Todo automáticamente desde WhatsApp
+
+═══════════════════════════════════════════════════════════════════════
+
+🔔 MONITOREO AUTOMÁTICO:
+
+Cada petición genera logs en:
+  → Vercel Dashboard > Función Logs
+  → Timestamp de cada acción
+  → Errores capturados automáticamente
+  → Métricas de rendimiento
+
+═══════════════════════════════════════════════════════════════════════
+
+✨ PRÓXIMOS PASOS:
+
+[ ] Agregar 4 variables en Vercel (5 min)
+[ ] Configurar webhook en Meta (2 min)
+[ ] Suscribirse a "messages" (1 min)
+[ ] Probar enviando un mensaje (1 min)
+[ ] Ver respuesta del bot (< 1 segundo)
+[ ] ¡Celebrar! 🎉
+
+═══════════════════════════════════════════════════════════════════════
+
+📞 SOPORTE:
+
+Abre uno de estos URLs para más info:
+
+Setup Guide:     /api/whatsapp/setup-guide
+Auto-Sync:       /api/whatsapp/auto-sync
+Sync Status:     /api/whatsapp/sync-status
+Webhook Status:  /api/whatsapp
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 OBJETIVO FINAL:
+
+Tu bot de "Monopolio de Ventas" en WhatsApp, totalmente funcional,
+recibiendo mensajes automáticamente y respondiendo con inteligencia
+artificial, en aproximadamente 15 minutos.
+
+═══════════════════════════════════════════════════════════════════════
