@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect, Component, type ReactNode } from 'react';
-import { Phone, Lock } from 'lucide-react';
+import Link from 'next/link';
+import { Phone, Lock, ArrowLeft } from 'lucide-react';
 import { WhatsAppConnectModal } from '@/components/chat/WhatsAppConnectModal';
 import { AdminPanel } from '@/components/admin/AdminPanel';
+import { ChatMessage } from '@/components/chat/ChatMessage';
 
 interface Message {
   id: string;
